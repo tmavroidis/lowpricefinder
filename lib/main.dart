@@ -83,6 +83,8 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     );
 
+    if (!mounted) return;
+
     if (result != null) {
       setState(() {
         _scannedCode = result;
@@ -138,6 +140,8 @@ class _MyHomePageState extends State<MyHomePage> {
       // Query Open Food Facts API to identify the exact product name and brand details
       final url = Uri.parse('https://world.openfoodfacts.org/api/v0/product/$upc.json');
       final response = await http.get(url).timeout(const Duration(seconds: 5));
+
+      if (!mounted) return;
 
       String detectedTitle = '';
       String detectedDescription = '';
@@ -269,6 +273,7 @@ class _MyHomePageState extends State<MyHomePage> {
         _isLoading = false;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _isLoading = false;
       });
@@ -301,11 +306,11 @@ class _MyHomePageState extends State<MyHomePage> {
             // Region Selector Toggle
             Card(
               margin: const EdgeInsets.only(bottom: 16),
-              color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.4),
+              color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                padding: const EdgeInsets.all(12.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Row(
                       children: [
@@ -317,28 +322,31 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                       ],
                     ),
-                    SegmentedButton<String>(
-                      segments: const <ButtonSegment<String>>[
-                        ButtonSegment<String>(
-                          value: 'CA',
-                          label: Text('Canada (🇨🇦)'),
-                          icon: Icon(Icons.map),
-                        ),
-                        ButtonSegment<String>(
-                          value: 'US',
-                          label: Text('United States (🇺🇸)'),
-                          icon: Icon(Icons.flag),
-                        ),
-                      ],
-                      selected: <String>{_selectedRegion},
-                      onSelectionChanged: (Set<String> newSelection) {
-                        setState(() {
-                          _selectedRegion = newSelection.first;
-                        });
-                        if (_scannedCode != null) {
-                          _searchProduct(_scannedCode!);
-                        }
-                      },
+                    const SizedBox(height: 10),
+                    Center(
+                      child: SegmentedButton<String>(
+                        segments: const <ButtonSegment<String>>[
+                          ButtonSegment<String>(
+                            value: 'CA',
+                            label: Text('Canada (🇨🇦)'),
+                            icon: Icon(Icons.map),
+                          ),
+                          ButtonSegment<String>(
+                            value: 'US',
+                            label: Text('United States (🇺🇸)'),
+                            icon: Icon(Icons.flag),
+                          ),
+                        ],
+                        selected: <String>{_selectedRegion},
+                        onSelectionChanged: (Set<String> newSelection) {
+                          setState(() {
+                            _selectedRegion = newSelection.first;
+                          });
+                          if (_scannedCode != null) {
+                            _searchProduct(_scannedCode!);
+                          }
+                        },
+                      ),
                     ),
                   ],
                 ),
