@@ -298,7 +298,7 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title),
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -308,45 +308,40 @@ class _MyHomePageState extends State<MyHomePage> {
               margin: const EdgeInsets.only(bottom: 16),
               color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
               child: Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const Row(
                       children: [
-                        Icon(Icons.public, color: Colors.blue),
+                        Icon(Icons.public, color: Colors.blue, size: 20),
                         SizedBox(width: 8),
                         Text(
-                          'Search Site Region:',
+                          'Region:',
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 10),
-                    Center(
-                      child: SegmentedButton<String>(
-                        segments: const <ButtonSegment<String>>[
-                          ButtonSegment<String>(
-                            value: 'CA',
-                            label: Text('Canada (🇨🇦)'),
-                            icon: Icon(Icons.map),
-                          ),
-                          ButtonSegment<String>(
-                            value: 'US',
-                            label: Text('United States (🇺🇸)'),
-                            icon: Icon(Icons.flag),
-                          ),
-                        ],
-                        selected: <String>{_selectedRegion},
-                        onSelectionChanged: (Set<String> newSelection) {
-                          setState(() {
-                            _selectedRegion = newSelection.first;
-                          });
-                          if (_scannedCode != null) {
-                            _searchProduct(_scannedCode!);
-                          }
-                        },
-                      ),
+                    SegmentedButton<String>(
+                      segments: const <ButtonSegment<String>>[
+                        ButtonSegment<String>(
+                          value: 'CA',
+                          label: Text('CA 🇨🇦'),
+                        ),
+                        ButtonSegment<String>(
+                          value: 'US',
+                          label: Text('US 🇺🇸'),
+                        ),
+                      ],
+                      selected: <String>{_selectedRegion},
+                      onSelectionChanged: (Set<String> newSelection) {
+                        setState(() {
+                          _selectedRegion = newSelection.first;
+                        });
+                        if (_scannedCode != null) {
+                          _searchProduct(_scannedCode!);
+                        }
+                      },
                     ),
                   ],
                 ),
@@ -373,7 +368,8 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             const SizedBox(height: 16),
             if (_isLoading)
-              const Expanded(
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 48.0),
                 child: Center(
                   child: CircularProgressIndicator(),
                 ),
@@ -442,49 +438,42 @@ class _MyHomePageState extends State<MyHomePage> {
                 const SizedBox(height: 8),
               ],
               if (_searchResults.isNotEmpty)
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: _searchResults.length,
-                    itemBuilder: (context, index) {
-                      final item = _searchResults[index];
-                      return Card(
-                        margin: const EdgeInsets.symmetric(vertical: 6),
-                        child: ListTile(
-                          leading: CircleAvatar(
-                            backgroundColor: Colors.blue.shade50,
-                            child: Icon(
-                              item.icon,
+                ..._searchResults.map((item) => Card(
+                      margin: const EdgeInsets.symmetric(vertical: 6),
+                      child: ListTile(
+                        leading: CircleAvatar(
+                          backgroundColor: Colors.blue.shade50,
+                          child: Icon(
+                            item.icon,
+                            color: Colors.blue,
+                          ),
+                        ),
+                        title: Text(
+                          item.source,
+                          style: const TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                        subtitle: const Text('Tap to open store results feed'),
+                        trailing: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: Colors.blue.shade50,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            item.price,
+                            style: const TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
                               color: Colors.blue,
                             ),
                           ),
-                          title: Text(
-                            item.source,
-                            style: const TextStyle(fontWeight: FontWeight.w600),
-                          ),
-                          subtitle: const Text('Tap to open store results feed'),
-                          trailing: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                            decoration: BoxDecoration(
-                              color: Colors.blue.shade50,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Text(
-                              item.price,
-                              style: const TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.blue,
-                              ),
-                            ),
-                          ),
-                          onTap: () => _launchUrl(item.link),
                         ),
-                      );
-                    },
-                  ),
-                )
+                        onTap: () => _launchUrl(item.link),
+                      ),
+                    ))
               else if (!_isLoading)
-                const Expanded(
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 48.0),
                   child: Center(
                     child: Text(
                       'No active search results. Scan a barcode or enter a UPC code above to find the lowest price.',
